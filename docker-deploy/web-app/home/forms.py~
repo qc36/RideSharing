@@ -1,0 +1,89 @@
+from django import forms
+from django.contrib.auth.models import User
+from django.core import validators
+from django.utils.translation import ugettext as _
+import re
+from .models import Owner,Driver  
+class RegistrationForm(forms.Form):  
+  size_list = (
+         (1, 'N/A'),
+         (2, '5 passengers'),
+         (3, '7 passengers'),
+     )
+  group_list=(
+          (1, 'Owner'),
+          (2, 'Driver'),
+  )
+  group=forms.IntegerField(label='Register as a owner or driver?',widget=forms.Select(choices=group_list))  
+  username = forms.CharField(label='Username:', max_length=50)
+  email = forms.EmailField(label='Email:')
+  password1 = forms.CharField(label='Password:',widget=forms.PasswordInput)    
+  password2 = forms.CharField(label='Password Confirmation:',widget=forms.PasswordInput)
+  phone=forms.CharField(label='Phone Number:')
+  first_name=forms.CharField(label='Firstname', max_length=20)
+  last_name=forms.CharField(label='Lastname', max_length=20)
+  size=forms.IntegerField(label='select the vecicle type:',widget=forms.Select(choices=size_list))  
+
+  def clean_username(self):        
+    username = self.cleaned_data.get('username')        
+    if len(username) < 4:            
+      raise forms.ValidationError("Your username must be at least 6 characters long.")        
+    elif len(username) > 20:            
+      raise forms.ValidationError("Your username is too long.")        
+    else:            
+      filter_result = User.objects.filter(username__exact=username)            
+      if len(filter_result) > 0:                
+        raise forms.ValidationError("Your username already exists.")        
+    return username 
+ 
+     
+  def clean_email(self):        
+    email = self.cleaned_data.get('email')                    
+    filter_result = User.objects.filter(email__exact=email)            
+    if len(filter_result) > 0:                
+      raise forms.ValidationError("This email already exists, plear input another one.")               
+    return email   
+  
+  def clean_psw1(self):        
+    password1 = self.cleaned_data.get('password1')
+    if len(password1) < 4:            
+      raise forms.ValidationError("Your username must be at least 6 characters long.")        
+    elif len(password1) > 20:            
+      raise forms.ValidationError("Your username is too long.")     
+    return password1 
+    
+  
+  def clean_psw2(self):                
+    password2 = self.cleaned_data.get('password2')        
+    if len(password2) < 4:            
+      raise forms.ValidationError("Your username must be at least 6 characters long.")        
+    elif len(password2) > 20:            
+      raise forms.ValidationError("Your username is too long.")     
+
+    return password2 
+    
+  def clean_phone(self):
+    phone = self.cleaned_data.get('phone')
+    filter_resultO = Owner.objects.filter(phone__exact=phone)
+    filter_resultD = Driver.obects.filter(phone__exact=phone)
+    if len(filter_resultO) > 0:
+      raise forms.ValidationError("This phone number already registered as an Owner , please input another one.") 
+    if len(filter_resultD) > 0:
+      raise forms.ValidationError("This phone number already registered as a Driver , please input another one.") 
+    return phone
+ 
+  
+    
+class LoginForm(forms.Form): 
+  username = forms.CharField(label='Username', max_length=50)
+  password = forms.CharField(label='Password', widget=forms.PasswordInput)   
+  
+  def clean_username(self):        
+    username = self.cleaned_data.get('username')        
+    filter_result = User.objects.filter(username__exact=username)            
+    if not filter_result:                        
+        raise ValidationError("This username does not exist. Please register first.")      
+    return username 
+
+         
+   

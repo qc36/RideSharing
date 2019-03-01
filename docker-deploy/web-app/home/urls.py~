@@ -1,0 +1,21 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('owners/', views.OwnerListView.as_view(), name='owners'),
+    path('owners/<int:pk>', views.OwnerDetailView.as_view(), name='owner-detail'),
+    path('orders/', views.OrderListView.as_view(), name='orders'),
+    path('orders/<int:pk>', views.OrderDetailView.as_view(), name='order-detail'),
+    path('driverorders/<int:pk>', views.DriverHistView.as_view(), name='driver-hist'),
+    path('ownerorders/<int:pk>', views.OwnerHistView.as_view(), name='owner-hist'),
+
+]
+
+from django.conf.urls import url
+urlpatterns += [ 
+    path('login/', views.dlogin, name='login'),
+    path('register/', views.dregist,name='register'),
+    path('logout/', views.dlogout, name='logout'),
+    
+]

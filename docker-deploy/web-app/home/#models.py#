@@ -1,0 +1,105 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+
+# Create your models here.
+from django.urls import reverse
+class Owner(models.Model):
+    """A typical class defining a model, derived from the Model class."""
+
+    # Fields
+    phone = models.CharField(max_length=50, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    first_name = models.CharField(max_length=20)
+    last_name=models.CharField(max_length=20)
+    user.user_permissions.add(permission
+#    order = models.ManyToManyField('Order', null=True, related_name = "order_owner")  
+
+    # Metadata
+#    class Meta: 
+#        ordering = ['-user.name']
+
+    # Methods
+    def get_absolute_url(self):
+        """Returns the url to access a particular instance of MyModelName."""
+        return reverse('owner-detail', args=[str(self.id)])
+    
+    def __str__(self):
+        """String for representing the MyModelName object (in Admin site etc.)."""
+        return self.user.username
+        
+from django.urls import reverse       
+import uuid # Required for unique book instances       
+class Order(models.Model):
+    """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
+    #order_id = models.UUIDField(primary_key=False, default=uuid.uuid4, help_text='Unique ID for this particular book across whole library')
+    owner = models.ManyToManyField(Owner, related_name = "owner_order") 
+    destination = models.CharField(max_length=200)
+    time = models.DateTimeField()
+    driver=models.ForeignKey('Driver',on_delete=models.SET_NULL, null=True,related_name = "driver_order") 
+    passenger=models.CharField(max_length=200)
+
+    ORDER_STATUS = (
+        ('r', 'Request'),
+        ('c', 'Confirm'),
+        ('f', 'Finished'),
+    )
+
+    status = models.CharField(
+        max_length=1,
+        choices=ORDER_STATUS,
+        blank=True,
+        default='f',
+        help_text='order',
+    )
+
+    class Meta:
+        ordering = ['time']
+            # Methods
+        permissions = (
+            ("confirm_order", "Can change order status"),
+            ("change_order_info", "Can change order information"),
+        )
+    def get_absolute_url(self):
+        """Returns the url to access a particular instance of MyModelName."""
+        return reverse('order-detail', args=[str(self.id)])
+    def __str__(self):
+        """String for representing the Model object."""
+        return self.destination
+   
+
+class Driver(models.Model):
+    """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
+    phone = models.CharField(max_length=50, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    first_name = models.CharField(max_length=20)
+    last_name=models.CharField(max_length=20)
+
+#    order = models.ManyToManyField(Order, related_name = "order_driver")
+
+    V_SIZE = (
+        ('5', '5 passenger'),
+        ('7', '7 passenger'),
+    )
+
+    size = models.CharField(
+        max_length=1,
+        choices=V_SIZE,
+        blank=True,
+        default='5',
+        help_text='vehicle status',
+    )
+
+#    class Meta:
+#        ordering = ['user.name']
+
+# Methods 
+   # def get_absolute_url(self):
+    #    """Returns the url to access a particular instance of MyModelName."""
+     #   return reverse('driver-detail-view', args=[str(self.id)])
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return self.user.username
